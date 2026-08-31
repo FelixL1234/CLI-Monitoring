@@ -1,4 +1,5 @@
 #region IMPORTS
+import os
 import psutil
 import select
 import termios
@@ -38,7 +39,7 @@ graphBars = " ▁▂▃▄▅▆▇█"
 lastNetTime = time.time()
 lastCpuUsage = 0
 
-gpuText = "LOADING GPU.."
+gpuText = "LOADING GPU..."
 console = rich.console.Console()
 
 packetLines = deque(maxlen=30)
@@ -47,10 +48,17 @@ lastPacketCount = 0
 
 showUnknown = False
 
-client = OpenAI()
 chatHistory = []
 currentInput = ""
 chatScroll = 0
+
+client = None
+
+if os.environ.get("OPENAI_API_KEY"):
+    try:
+        client = OpenAI()
+    except Exception:
+        client = None
 #endregion
 
 #region HELPER FUNCTIONS
@@ -179,12 +187,20 @@ def networkStats():
 
 #region CHATBOT
 def askAI(message):
+    if client is None:
+        return (
+            "OpenAI chat is disabled because OPENAI_API_KEY is not set.\n\n"
+            "To enable it, run:\n"
+            "export OPENAI_API_KEY=\"your_key_here\""
+        )
+
     try:
         response = client.responses.create(
             model="gpt-4.1-mini",
             input=message
         )
         return response.output_text
+
     except Exception as e:
         return f"AI ERROR: {type(e).__name__}: {e}"
 
@@ -194,6 +210,15 @@ def sendChatMessage(userMessage):
     chatHistory.append("AI: ")
     aiIndex = len(chatHistory) - 1
     collected = ""
+
+    if client is None:
+        chatHistory[aiIndex] = (
+            "[yellow]AI chat disabled.[/yellow]\n"
+            "[grey50]OPENAI_API_KEY is not set.[/grey50]\n"
+            "[grey50]Run: export OPENAI_API_KEY=\"your_key_here\"[/grey50]"
+        )
+        chatScroll = 0
+        return
 
     try:
         with client.responses.stream(
