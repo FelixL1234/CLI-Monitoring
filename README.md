@@ -3,4 +3,4 @@ Simple CLI for monitoring your system stats, packets, and whats going on under t
 
 # How to
 import openai key: export OPENAI_API_KEY="your_key_here"                                 
-run the program: sudo -E python3 monitor.py
+run the program: sudo -E climonitor
