@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "climonitor"
+version = "0.1.0"
+description = "A btop-style terminal system monitor with AI chat and packet inspection."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Felix Loeb" }
+]
+dependencies = [
+    "psutil",
+    "rich",
+    "scapy",
+    "openai",
+    "macgputils"
+]
+
+[project.urls]
+Homepage = "https://github.com/FelixL1234/CLI-Monitoring"
+Repository = "https://github.com/FelixL1234/CLI-Monitoring"
+
+[project.scripts]
+climonitor = "climonitor.main:main"
